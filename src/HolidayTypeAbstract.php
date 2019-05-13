@@ -5,7 +5,7 @@
  * @copyright (c) Takahisa Ishida <sekidenkiku@gmail.com>
  * @license http://www.opensource.org/licenses/mit-license.php MIT License
  * @link https://github.com/sekidenkiku/syukujitsu
- * @version 1.0.1
+ * @version 1.0.2
  */
 
 namespace sekidenkiku\syukujitsu;
@@ -22,7 +22,7 @@ abstract class HolidayTypeAbstract
 
     /**
      * HolidayTypeAbstract constructor.
-     * @param \DateTimeZone|null $timezone タイムゾーンオブジェクト。指定しない場合、デフォルトタイムゾーンになります。
+     * @param \DateTimeZone|null $timezone タイムゾーンオブジェクト。指定しない場合はデフォルトのタイムゾーンになります。
      */
     public function __construct(\DateTimeZone $timezone = null)
     {
@@ -64,5 +64,5 @@ abstract class HolidayTypeAbstract
      * @return \DateTime|null DateTimeオブジェクト。存在しない場合は、nullを返します。
      * @throws \Exception
      */
-    abstract public function getDate(int $year): ?\DateTime;
+    abstract public function findDate(int $year): ?\DateTime;
 }

@@ -1,4 +1,5 @@
 <?php
+
 use PHPUnit\Framework\TestCase;
 use sekidenkiku\syukujitsu\HolidayTypes;
 
@@ -15,11 +16,11 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('元日', $type->getName());
 
         $year = 1948;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
         $year = 1949;
-        $this->assertEquals(new \DateTime("{$year}-1-1"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-1-1"), $type->findDate($year));
         $year = 2001;
-        $this->assertEquals(new \DateTime("{$year}-1-1"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-1-1"), $type->findDate($year));
     }
 
     /**
@@ -32,17 +33,17 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('成人の日', $type->getName());
 
         $year = 1948;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
         // 1949年から1月15日
         $year = 1949;
-        $this->assertEquals(new \DateTime("{$year}-1-15"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-1-15"), $type->findDate($year));
         $year = 1999;
-        $this->assertEquals(new \DateTime("{$year}-1-15"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-1-15"), $type->findDate($year));
         // 2000年以降、1月の第2月曜日
         $year = 2000;
-        $this->assertEquals(new \DateTime("{$year}-1-10"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-1-10"), $type->findDate($year));
         $year = 2001;
-        $this->assertEquals(new \DateTime("{$year}-1-8"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-1-8"), $type->findDate($year));
     }
 
     /**
@@ -55,13 +56,13 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('建国記念の日', $type->getName());
 
         $year = 1966;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         // 1967年から2月11日
         $year = 1967;
-        $this->assertEquals(new \DateTime("{$year}-2-11"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-2-11"), $type->findDate($year));
         $year = 2000;
-        $this->assertEquals(new \DateTime("{$year}-2-11"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-2-11"), $type->findDate($year));
     }
 
     /**
@@ -74,12 +75,12 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('春分の日', $type->getName());
 
         $year = 1948;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 1949;
-        $this->assertEquals(new \DateTime("{$year}-3-21"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-3-21"), $type->findDate($year));
         $year = 2001;
-        $this->assertEquals(new \DateTime("{$year}-3-20"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-3-20"), $type->findDate($year));
     }
 
     /**
@@ -92,12 +93,12 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('昭和の日', $type->getName());
 
         $year = 2006;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 2007;
-        $this->assertEquals(new \DateTime("{$year}-4-29"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-4-29"), $type->findDate($year));
         $year = 2010;
-        $this->assertEquals(new \DateTime("{$year}-4-29"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-4-29"), $type->findDate($year));
     }
 
     /**
@@ -110,13 +111,13 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('憲法記念日', $type->getName());
 
         $year = 1948;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
 
         $year = 1949;
-        $this->assertEquals(new \DateTime("{$year}-5-3"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-5-3"), $type->findDate($year));
         $year = 2000;
-        $this->assertEquals(new \DateTime("{$year}-5-3"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-5-3"), $type->findDate($year));
     }
 
     /**
@@ -129,16 +130,16 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('みどりの日', $type->getName());
 
         $year = 1988;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 1989;
-        $this->assertEquals(new \DateTime("{$year}-4-29"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-4-29"), $type->findDate($year));
         $year = 2006;
-        $this->assertEquals(new \DateTime("{$year}-4-29"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-4-29"), $type->findDate($year));
         $year = 2007;
-        $this->assertEquals(new \DateTime("{$year}-5-4"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-5-4"), $type->findDate($year));
         $year = 2010;
-        $this->assertEquals(new \DateTime("{$year}-5-4"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-5-4"), $type->findDate($year));
     }
 
     /**
@@ -151,12 +152,12 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('こどもの日', $type->getName());
 
         $year = 1948;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 1949;
-        $this->assertEquals(new \DateTime("{$year}-5-5"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-5-5"), $type->findDate($year));
         $year = 2000;
-        $this->assertEquals(new \DateTime("{$year}-5-5"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-5-5"), $type->findDate($year));
     }
 
     /**
@@ -169,17 +170,17 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('海の日', $type->getName());
 
         $year = 1955;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 1996;
-        $this->assertEquals(new \DateTime("{$year}-7-20"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-7-20"), $type->findDate($year));
         $year = 2002;
-        $this->assertEquals(new \DateTime("{$year}-7-20"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-7-20"), $type->findDate($year));
         // 2003年から7月の第3月曜日。
         $year = 2003;
-        $this->assertEquals(new \DateTime("{$year}-7-21"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-7-21"), $type->findDate($year));
         $year = 2010;
-        $this->assertEquals(new \DateTime("{$year}-7-19"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-7-19"), $type->findDate($year));
     }
 
     /**
@@ -192,18 +193,18 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('山の日', $type->getName());
 
         $year = 2015;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 2016;
-        $this->assertEquals(new \DateTime("{$year}-8-11"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-8-11"), $type->findDate($year));
         $year = 2019;
-        $this->assertEquals(new \DateTime("{$year}-8-11"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-8-11"), $type->findDate($year));
         $year = 2020;
-        $this->assertEquals(new \DateTime("{$year}-8-10"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-8-10"), $type->findDate($year));
         $year = 2021;
-        $this->assertEquals(new \DateTime("{$year}-8-11"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-8-11"), $type->findDate($year));
         $year = 2030;
-        $this->assertEquals(new \DateTime("{$year}-8-11"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-8-11"), $type->findDate($year));
     }
 
     /**
@@ -216,17 +217,17 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('敬老の日', $type->getName());
 
         $year = 1965;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 1966;
-        $this->assertEquals(new \DateTime("{$year}-9-15"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-9-15"), $type->findDate($year));
         $year = 2002;
-        $this->assertEquals(new \DateTime("{$year}-9-15"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-9-15"), $type->findDate($year));
         // 2003年から9月の第3月曜日。
         $year = 2003;
-        $this->assertEquals(new \DateTime("{$year}-9-15"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-9-15"), $type->findDate($year));
         $year = 2010;
-        $this->assertEquals(new \DateTime("{$year}-9-20"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-9-20"), $type->findDate($year));
     }
 
     /**
@@ -239,12 +240,12 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('秋分の日', $type->getName());
 
         $year = 1947;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 1948;
-        $this->assertEquals(new \DateTime("{$year}-9-23"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-9-23"), $type->findDate($year));
         $year = 2001;
-        $this->assertEquals(new \DateTime("{$year}-9-23"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-9-23"), $type->findDate($year));
 
     }
 
@@ -258,21 +259,21 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('体育の日', $type->getName());
 
         $year = 1965;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 1966;
-        $this->assertEquals(new \DateTime("{$year}-10-10"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-10-10"), $type->findDate($year));
         $year = 1999;
-        $this->assertEquals(new \DateTime("{$year}-10-10"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-10-10"), $type->findDate($year));
         // 2000年から10月の第2月曜日。
         $year = 2000;
-        $this->assertEquals(new \DateTime("{$year}-10-9"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-10-9"), $type->findDate($year));
         $year = 2019;
-        $this->assertEquals(new \DateTime("{$year}-10-14"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-10-14"), $type->findDate($year));
 
         // 2020年からスポーツの日に改名。
         $year = 2020;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
     }
 
     /**
@@ -285,14 +286,14 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('スポーツの日', $type->getName());
 
         $year = 2019;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 2020;
-        $this->assertEquals(new \DateTime("{$year}-7-24"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-7-24"), $type->findDate($year));
         $year = 2021;
-        $this->assertEquals(new \DateTime("{$year}-10-11"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-10-11"), $type->findDate($year));
         $year = 2030;
-        $this->assertEquals(new \DateTime("{$year}-10-14"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-10-14"), $type->findDate($year));
     }
 
     /**
@@ -305,12 +306,12 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('文化の日', $type->getName());
 
         $year = 1947;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 1948;
-        $this->assertEquals(new \DateTime("{$year}-11-3"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-11-3"), $type->findDate($year));
         $year = 2001;
-        $this->assertEquals(new \DateTime("{$year}-11-3"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-11-3"), $type->findDate($year));
     }
 
     /**
@@ -323,12 +324,12 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('勤労感謝の日', $type->getName());
 
         $year = 1947;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 1948;
-        $this->assertEquals(new \DateTime("{$year}-11-23"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-11-23"), $type->findDate($year));
         $year = 2001;
-        $this->assertEquals(new \DateTime("{$year}-11-23"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-11-23"), $type->findDate($year));
     }
 
     /**
@@ -341,27 +342,27 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('天皇誕生日', $type->getName());
 
         $year = 1948;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 1949;
-        $this->assertEquals(new \DateTime("{$year}-4-29"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-4-29"), $type->findDate($year));
         $year = 1988;
-        $this->assertEquals(new \DateTime("{$year}-4-29"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-4-29"), $type->findDate($year));
         // 1989年から12月23日
         $year = 1989;
-        $this->assertEquals(new \DateTime("{$year}-12-23"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-12-23"), $type->findDate($year));
         $year = 2018;
-        $this->assertEquals(new \DateTime("{$year}-12-23"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-12-23"), $type->findDate($year));
         // 2019年は祝日無し
         $year = 2019;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
 
         // 2020年以降は2月23日
         $year = 2020;
-        $this->assertEquals(new \DateTime("{$year}-2-23"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-2-23"), $type->findDate($year));
         $year = 2030;
-        $this->assertEquals(new \DateTime("{$year}-2-23"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-2-23"), $type->findDate($year));
     }
 
     /**
@@ -373,13 +374,13 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('皇太子明仁親王の結婚の儀', $type->getName());
 
         $year = 1958;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 1959;
-        $this->assertEquals(new \DateTime("{$year}-4-10"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-4-10"), $type->findDate($year));
 
         $year = 1960;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
     }
 
     /**
@@ -391,13 +392,13 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('皇太子徳仁親王の結婚の儀', $type->getName());
 
         $year = 1992;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 1993;
-        $this->assertEquals(new \DateTime("{$year}-6-9"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-6-9"), $type->findDate($year));
 
         $year = 1994;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
     }
 
@@ -410,13 +411,13 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('昭和天皇の大喪の礼', $type->getName());
 
         $year = 1988;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 1989;
-        $this->assertEquals(new \DateTime("{$year}-2-24"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-2-24"), $type->findDate($year));
 
         $year = 1990;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
     }
 
     /**
@@ -429,13 +430,13 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('即位の日', $type->getName());
 
         $year = 2018;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 2019;
-        $this->assertEquals(new \DateTime("{$year}-5-1"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-5-1"), $type->findDate($year));
 
         $year = 2020;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
     }
 
@@ -449,22 +450,22 @@ class HolidayTypesTest extends TestCase
         $this->assertEquals('即位礼正殿の儀', $type->getName());
 
         $year = 1989;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 1990;
-        $this->assertEquals(new \DateTime("{$year}-11-12"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-11-12"), $type->findDate($year));
 
         $year = 1991;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 2018;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
 
         $year = 2019;
-        $this->assertEquals(new \DateTime("{$year}-10-22"), $type->getDate($year));
+        $this->assertEquals(new \DateTime("{$year}-10-22"), $type->findDate($year));
 
         $year = 2020;
-        $this->assertNull($type->getDate($year));
+        $this->assertNull($type->findDate($year));
     }
 
 }

@@ -5,7 +5,7 @@
  * @copyright (c) Takahisa Ishida <sekidenkiku@gmail.com>
  * @license http://www.opensource.org/licenses/mit-license.php MIT License
  * @link https://github.com/sekidenkiku/syukujitsu
- * @version 1.0.1
+ * @version 1.0.2
  */
 
 namespace sekidenkiku\syukujitsu\HolidayTypes;
@@ -28,7 +28,7 @@ class Uminohi extends HolidayTypeAbstract
      * @return \DateTime|null DateTimeオブジェクト。存在しない場合は、nullを返します。
      * @throws \Exception
      */
-    public function getDate(int $year): ?\DateTime
+    public function findDate(int $year): ?\DateTime
     {
         if (1996 <= $year && $year <= 2002) {
             $result = new \DateTime("{$year}-7-20", $this->getTimezone());

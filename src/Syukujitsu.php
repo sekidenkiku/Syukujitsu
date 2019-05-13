@@ -5,7 +5,7 @@
  * @copyright (c) Takahisa Ishida <sekidenkiku@gmail.com>
  * @license http://www.opensource.org/licenses/mit-license.php MIT License
  * @link https://github.com/sekidenkiku/syukujitsu
- * @version 1.0.1
+ * @version 1.0.2
  */
 
 namespace sekidenkiku\syukujitsu;
@@ -40,23 +40,13 @@ class Syukujitsu
     ];
 
     /**
-     * @var array 休日情報のキャッシュ。
-     */
-    private $holiday_cache = [];
-
-    /**
-     * @var array 祝日情報のキャッシュ。
-     */
-    private $public_holiday_cache = [];
-
-    /**
      * @var \DateTimeZone タイムゾーン。
      */
     private $timezone;
 
     /**
      * Syukujitsu constructor.
-     * @param \DateTimeZone|null $timezone タイムゾーンオブジェクト。指定しない場合、デフォルトタイムゾーンになります。
+     * @param \DateTimeZone|null $timezone タイムゾーンオブジェクト。指定しない場合はデフォルトのタイムゾーンになります。
      */
     public function __construct(\DateTimeZone $timezone = null)
     {
@@ -98,7 +88,7 @@ class Syukujitsu
         $datetime->setTime(0, 0, 0);
         $year = intval($datetime->format("Y"));
         $result = null;
-        $holidays = $this->getHolidays($year);
+        $holidays = $this->find($year);
         foreach ($holidays as $holiday) {
             if ($datetime == $holiday) {
                 $result = $holiday;
@@ -115,47 +105,20 @@ class Syukujitsu
      * @return HolidayClass[] 休日オブジェクトの配列。存在しない場合は空の配列を返します。
      * @throws \Exception
      */
-    public function getHolidays(int $year, ?int $month = null): array
+    public function find(int $year, ?int $month = null): array
     {
-        if (isset($this->holiday_cache[$year])) {
-            $result = $this->holiday_cache[$year];
+        static $cache = [];
+        $cache_name = strval($year) . $this->timezone->getName();
+        if (isset($cache[$cache_name])) {
+            $result = $cache[$cache_name];
         } else {
-            $holidays = $this->getPublicHolidays($year);
-            // 振替休日の取得。(振替休日と国民の休日の両方の条件を満たす場合は振替休日とする。そのため国民の休日より先に追加する)
-            $holidays = array_merge($holidays, $this->getHurikaekyujitu($year));
-
-            // 国民の休日取得。
-            foreach ($this->getKokuminnokyujitu($year) as $val) {
-                if (false === $this->hasDate($val, $holidays)) {
-                    $holidays[] = $val;
-                }
-            }
-            sort($holidays);
+            $result = $this->findYearHoliday($year);
             // キャッシュの保存。
-            $this->holiday_cache[$year] = $holidays;
-            // キャッシュのサイズ制限。古いキャッシュ(配列先頭の値)を削除。※array_shift()で削除すると処理が遅くなるため、unset()を使用している。
-            if (count($this->holiday_cache) > 10) {
-                reset($this->holiday_cache);
-                unset($this->holiday_cache[key($this->holiday_cache)]);
-            }
-            $result = $holidays;
+            $cache = $this->addCache($cache, $cache_name, $result);
         }
-        // 月外の休日を削除。
+        // 月が指定された場合、月内の祝日を抽出。
         if (!is_null($month)) {
-            if (1 <= $month && $month <= 12) {
-                $first = new \DateTime("{$year}-{$month}-1", $this->timezone);
-                $last = new \DateTime("last day of {$year}-{$month}", $this->timezone);
-                /**
-                 * @var $holiday HolidayClass 祝日オブジェクト
-                 */
-                foreach ($result as $key => $holiday) {
-                    if ($first > $holiday || $last < $holiday) {
-                        unset($result[$key]);
-                    }
-                }
-            } else {
-                $result = [];
-            }
+            $result = $this->extractMonthHoliday($result, $year, $month);
         }
         return array_values($result);
     }
@@ -166,10 +129,12 @@ class Syukujitsu
      * @return HolidayClass[] 休日オブジェクトの配列。存在しない場合は空の配列を返します。
      * @throws \Exception
      */
-    private function getPublicHolidays(int $year): array
+    private function findPublicHolidays(int $year): array
     {
-        if (isset($this->public_holiday_cache[$year])) {
-            return $this->public_holiday_cache[$year];
+        static $cache = [];
+        $cache_name = strval($year) . $this->timezone->getName();
+        if (isset($cache[$cache_name])) {
+            return $cache[$cache_name];
         } else {
             $result = [];
             // 祝日の判定
@@ -179,7 +144,7 @@ class Syukujitsu
                  * @var HolidayTypeAbstract $obj
                  */
                 $obj = new $class_name($this->timezone);
-                if (!is_null($date = $obj->getDate($year))) {
+                if (!is_null($date = $obj->findDate($year))) {
                     $holiday = new HolidayClass($date->format('Y-m-d'), $this->timezone);
                     $holiday->setName($obj->getName());
                     $result[] = $holiday;
@@ -187,12 +152,7 @@ class Syukujitsu
             }
             sort($result);
             // キャッシュの保存。
-            $this->public_holiday_cache[$year] = $result;
-            // キャッシュのサイズ制限。古いキャッシュ(配列先頭の値)を削除。※array_shift()で削除すると処理が遅くなるため、unset()を使用している。
-            if (count($this->public_holiday_cache) > 10) {
-                reset($this->public_holiday_cache);
-                unset($this->public_holiday_cache[key($this->public_holiday_cache)]);
-            }
+            $cache = $this->addCache($cache, $cache_name, $result);
             return $result;
         }
     }
@@ -203,22 +163,21 @@ class Syukujitsu
      * @return HolidayClass[] 休日オブジェクトの配列。存在しない場合は空の配列を返します。
      * @throws \Exception
      */
-    private function getHurikaekyujitu(int $year): array
+    private function findHurikaekyujitu(int $year): array
     {
         // @TODO 年をまたぐ振替休日に対応していない。将来12月31日が祝日になった場合は修正する。
-        // 振替休日は、1973年4月12日施行のため、1972年以前は存在しない。
-        // また、1973年の場合、2月11日(日)の建国記念日は、振替休日とならないので、2月12日の振替休日を除外する。
-        if ($year <= 1972) {
-            $result = [];
-        } else {
-            $result = $this->getSubstituteHoliday($this->getPublicHolidays($year));
-            if (1973 == $year) {
-                foreach ($result as $key => $value) {
-                    if ($value == new \DateTime("1973-2-12", $this->timezone)) {
-                        unset($result[$key]);
-                        break;
-                    }
-                }
+        // ①法改正(1973年4月12日施行)で「２　「国民の祝日」が日曜日にあたるときは、その翌日を休日とする。」が追加された。
+        // ②法改正(2007年1月1日施行)で「２　「国民の祝日」が日曜日に当たるときは、その日後においてその日に最も近い「国民の祝日」でない日を休日とする。」に変更された。
+        // 過去のカレンダーから結果的に②の条件で①も満たしているため、②の条件だけで①②を兼ねる。
+        $result = [];
+        $substitute_holidays = $this->findSubstituteHoliday($this->findPublicHolidays($year));
+        $begin = new \DateTime("1973-4-12", $this->timezone);
+        foreach ($substitute_holidays as $value) {
+            // 振替休日は、1973年4月12日施行。
+            if ($value >= $begin) {
+                $obj = new HolidayClass($value->format('Y-m-d'), $this->timezone);
+                $obj->setName('振替休日');
+                $result[] = $obj;
             }
         }
         return $result;
@@ -230,68 +189,39 @@ class Syukujitsu
      * @return HolidayClass[] 休日オブジェクトの配列。存在しない場合は空の配列を返します。
      * @throws \Exception
      */
-    private function getKokuminnokyujitu(int $year): array
+    private function findKokuminnokyujitu(int $year): array
     {
         // @TODO 年をまたぐ国民の休日に対応していない。将来12月30日が祝日となり1月1日(祝日)と挟まれた場合は修正する。
-        // 国民の休日は、1985年12月27日施行のため1985年以前は存在しない。
-        if ($year <= 1985) {
-            $result = [];
-        } else {
-            $result = $this->getPublicHolidaySandwichedDay($this->getPublicHolidays($year));
-            if ($year <= 2006) {
-                // 2006年12月31日以前は日曜日は国民の休日にならないため除外する。
-                foreach ($result as $key => $value) {
-                    if (
-                        $value < new \DateTime("2006-12-31", $this->timezone)
-                        && 0 == $value->format('w')
-                    ) {
-                        unset($result[$key]);
+        $result = [];
+        $sandwiched_days = $this->findPublicHolidaySandwichedDay($this->findPublicHolidays($year));
+        $begin = new \DateTime("1985-12-27", $this->timezone);
+        $secound_begin = new \DateTime("2006-12-31", $this->timezone);
+        $hurikaekyujitus = $this->findHurikaekyujitu($year);
+        foreach ($sandwiched_days as $value) {
+            // 法改正(1985年12月27日施行)で「３　その前日及び翌日が「国民の祝日」である日（日曜日にあたる日及び前項に規定する休日にあたる日を除く。）は、休日とする。」が追加された。
+            // 法改正(2007年1月1日施行)で「３　その前日及び翌日が「国民の祝日」である日（「国民の祝日」でない日に限る。）は、休日とする。」に変更された。
+            // 簡単に説明すると、2006年12月31日以前は、日曜または振替休日に当たる場合は「国民の休日」にならない。2007年以降は、国民の祝日の場合は「国民の休日」にならない。
+            if ($value >= $begin) {
+                if ($value <= $secound_begin) {
+                    // 2006年12月31日以前は、国民の休日が日曜または振替休日の場合は「国民の休日」にならない処理。
+                    $able = true;
+                    if (0 == $value->format('w')) {
+                        // 日曜日の場合。
+                        $able = false;
+                    } else {
+                        // 振替休日の場合。
+                        foreach ($hurikaekyujitus as $hurikaekyujitu) {
+                            if ($hurikaekyujitu == $value) {
+                                $able = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (false === $able) {
+                        continue;
                     }
                 }
-            }
-        }
-        return $result;
-    }
-
-    /**
-     * 日曜日の休日オブジェクトがある場合、次の休日オブジェクトでない日を「振替休日」として返します。
-     * @param HolidayClass[] $holidays 休日オブジェクトの配列。
-     * @return HolidayClass[] 休日オブジェクトの配列。存在しない場合は空の配列を返します。
-     * @throws \Exception
-     */
-    private function getSubstituteHoliday(array $holidays): array
-    {
-        $result = [];
-        foreach ($holidays as $holiday) {
-            if ("0" === $holiday->format('w')) {
-                $date2 = clone $holiday;
-                do {
-                    $date2->modify('+1 days');
-                } while ($this->hasDate($date2, $holidays));
-                $obj = new HolidayClass($date2->format('Y-m-d'), $this->timezone);
-                $obj->setName('振替休日');
-                $result[] = $obj;
-            }
-        }
-        return $result;
-    }
-
-    /**
-     * 前後を休日オブジェクトで挟まれた日を国民の休日として返します。
-     * @param HolidayClass[] $holidays 休日オブジェクトの配列。
-     * @return HolidayClass[] 休日オブジェクトの配列。存在しない場合は空の配列を返します。
-     * @throws \Exception
-     */
-    private function getPublicHolidaySandwichedDay(array $holidays): array
-    {
-        $result = [];
-        foreach ($holidays as $key => $holiday) {
-            $date2 = clone $holiday;
-            $date2->modify('+1 days');
-            $date3 = clone $holiday;
-            $date3->modify('+2 days');
-            if (true === $this->hasDate($date3, $holidays) && false === $this->hasDate($date2, $holidays)) {
-                $obj = new HolidayClass($date2->format('Y-m-d'), $this->timezone);
+                $obj = new HolidayClass($value->format('Y-m-d'), $this->timezone);
                 $obj->setName('国民の休日');
                 $result[] = $obj;
             }
@@ -300,12 +230,54 @@ class Syukujitsu
     }
 
     /**
-     * 休日オブジェクト内に重複する日付がないかをチェックします。
+     * 日曜日の休日オブジェクトの次の休日オブジェクトでない日を返します。
+     * @param HolidayClass[] $holidays 休日オブジェクトの配列。
+     * @return HolidayClass[] 休日オブジェクトの配列。存在しない場合は空の配列を返します。
+     * @throws \Exception
+     */
+    private function findSubstituteHoliday(array $holidays): array
+    {
+        $result = [];
+        foreach ($holidays as $holiday) {
+            if ("0" === $holiday->format('w')) {
+                $date2 = clone $holiday;
+                do {
+                    $date2->modify('+1 days');
+                } while ($this->isDuplicated($date2, $holidays));
+                $result[] = $date2;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * 前後を休日オブジェクトで挟まれた日を返します。
+     * @param HolidayClass[] $holidays 休日オブジェクトの配列。
+     * @return HolidayClass[] 休日オブジェクトの配列。存在しない場合は空の配列を返します。
+     * @throws \Exception
+     */
+    private function findPublicHolidaySandwichedDay(array $holidays): array
+    {
+        $result = [];
+        foreach ($holidays as $key => $holiday) {
+            $date2 = clone $holiday;
+            $date2->modify('+1 days');
+            $date3 = clone $holiday;
+            $date3->modify('+2 days');
+            if (true === $this->isDuplicated($date3, $holidays) && false === $this->isDuplicated($date2, $holidays)) {
+                $result[] = $date2;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * 重複した日付が存在する場合trueを返します。
      * @param \DateTime $search 検索する日付。
      * @param HolidayClass[] $holidays 休日オブジェクトの配列。
-     * @return bool 一致する日付が見つかった場合trueを返します。
+     * @return bool 日付が一致するクラスが見つかった場合trueを返します。
      */
-    private function hasDate(\DateTime $search, array $holidays): bool
+    private function isDuplicated(\DateTime $search, array $holidays): bool
     {
         foreach ($holidays as $holiday) {
             if ($search == $holiday) {
@@ -313,5 +285,74 @@ class Syukujitsu
             }
         }
         return false;
+    }
+
+    /**
+     * キャッシュ変数にキャッシュを追加して返します。
+     * @param array $buff キャッシュ変数。
+     * @param string $name キャッシュ名。
+     * @param array $data データ。
+     * @return array キャッシュ変数。
+     */
+    private function addCache(array $buff, string $name, array $data): array
+    {
+        // キャッシュの保存。
+        $buff[$name] = $data;
+        // キャッシュのサイズ制限。古いキャッシュ(配列先頭の値)を削除。※array_shift()で削除すると処理が遅くなるため、unset()を使用している。
+        if (count($buff) > 10) {
+            reset($buff);
+            unset($buff[key($buff)]);
+        }
+        return $buff;
+    }
+
+    /**
+     * 指定された年の休日(祝日、振替休日、国民の休日)を返します。
+     * @param int $year 西暦。
+     * @return HolidayClass[] 祝日クラスのインスタントを配列で返します。
+     * @throws \Exception
+     */
+    private function findYearHoliday(int $year): array
+    {
+        $holidays = $this->findPublicHolidays($year);
+        // 振替休日の取得。(独自ルールとして、振替休日と国民の休日の両方の条件を満たす場合は振替休日とします。そのため国民の休日より先に追加する)
+        $holidays = array_merge($holidays, $this->findHurikaekyujitu($year));
+
+        // 国民の休日取得。
+        foreach ($this->findKokuminnokyujitu($year) as $val) {
+            if (false === $this->isDuplicated($val, $holidays)) {
+                $holidays[] = $val;
+            }
+        }
+        sort($holidays);
+        return $holidays;
+    }
+
+    /**
+     * 指定された月内の祝日を抽出して返します。
+     * @param HolidayClass[] $holidays 祝日クラス。
+     * @param int $year 西暦。
+     * @param int $month 月。
+     * @return HolidayClass[] 祝日クラスのインスタントを配列で返します。
+     * @throws \Exception
+     */
+    private function extractMonthHoliday(array $holidays, int $year, int $month): array
+    {
+        if (1 <= $month && $month <= 12) {
+            $first = new \DateTime("{$year}-{$month}-1", $this->timezone);
+            $last = new \DateTime("last day of {$year}-{$month}", $this->timezone);
+            /**
+             * @var $holiday HolidayClass 祝日オブジェクト
+             */
+            foreach ($holidays as $key => $holiday) {
+                if ($first > $holiday || $last < $holiday) {
+                    unset($holidays[$key]);
+                }
+            }
+            $result = $holidays;
+        } else {
+            $result = [];
+        }
+        return $result;
     }
 }

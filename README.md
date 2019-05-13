@@ -5,7 +5,13 @@
 - 国民の祝日に関する法律(1948年7月20日施行)で定められた国民の祝日と休日（振替休日、国民の休日）(以下、祝日とする)を取得します。
 1948年7月20日以降の祝日が対象です。<br>
 - 祝日は、DateTimeクラスの拡張クラスオブジェクトで返されます。<br>
+- 春分の日、秋分の日は2150年まで対応しています。
 - 2019年、2020年の祝日変更に対応済みです。<br>
+
+## 注意事項
+- 将来、法改正により、祝日の月日などが変更される場合があります。
+- 春分の日と秋分の日は、法律で具体的に月日が明記されず、それぞれ「春分日」、「秋分日」と定められています。
+本プログラムでは計算により求めた「春分日」、「秋分日」を使用しています。
 
 ## インストール要件
 - PHP >= 7.1
@@ -27,14 +33,15 @@ $syukujitsu = new Syukujitsu();
 
 **1.祝日のリストを取得**
 ```php
-getHolidays(int $year, ?int $month = null): array
+find(int $year, ?int $month = null): array
 ```
-+ 月の祝日を取得する。
+結果は、HolidayClassクラスのインスタントで返されます。HolidayClassクラスはDateTimeクラスの拡張クラスです。<br>
++ 月の祝日を取得する。<br>
 ```php
 $syukujitsu = new Syukujitsu();
 
 // 2020年5月を指定。
-$holidays = $syukujitsu->getHolidays(2020, 5);
+$holidays = $syukujitsu->find(2020, 5);
 
 foreach($holidays as $holiday)
 {
@@ -49,22 +56,21 @@ foreach($holidays as $holiday)
 */
 
 // ■祝日がない場合、空の配列を返します。
-$holidays = $syukujitsu->getHolidays(2020, 6);
+$holidays = $syukujitsu->find(2020, 6);
 
 var_dump($holidays); // array(0) {}
 ```
 
 + 年の祝日を取得する<br>
-getHolidays関数の引数$monthを省略すると、1年分の祝日を取得できます。
+find関数の引数$monthを省略すると、1年分の祝日を取得できます。
 ```php
 $syukujitsu = new Syukujitsu();
 
 // 2020年を指定。※月の引数を省略。
-$holidays = $syukujitsu->getHolidays(2020);
+$holidays = $syukujitsu->find(2020);
 
 foreach($holidays as $holiday)
 {
-    // 返値$holidayはDateTimeクラスの拡張クラスオブジェクトなのでformat()で日付の書式を変更できます。
     echo $holiday->format("Y-m-d") . ": " . $holiday->getName() . "<br>";
 }
 /*
@@ -89,7 +95,7 @@ foreach($holidays as $holiday)
 */
 
 // ■対象外の年の場合
-$holidays = $syukujitsu->getHolidays(1900); 
+$holidays = $syukujitsu->find(1900); 
 
 var_dump($holidays);
 // array(0) {} ※祝日を取得できない場合、空の配列を返します。
@@ -99,6 +105,7 @@ var_dump($holidays);
 ```php
 check(string $time): ?HolidayClass
 ```
+結果は、HolidayClassクラスのインスタントで返されます。HolidayClassクラスはDateTimeクラスの拡張クラスです。<br>
 + 2000年1月1日をチェックする。
 ```php
 $syukujitsu = new Syukujitsu();
@@ -107,7 +114,6 @@ $holiday = $syukujitsu->check("2000-01-01");
 
 if( !is_null($holiday) )
 {
-    // 返値$holidayはDateTimeクラスの拡張クラスオブジェクトなのでformat()で日付の書式を変更できます。
    echo $holiday->format("Y-m-d") . ": " . $holiday->getName() . "<br>";
 }
 // 2000-01-01: 元日

@@ -5,7 +5,7 @@
  * @copyright (c) Takahisa Ishida <sekidenkiku@gmail.com>
  * @license http://www.opensource.org/licenses/mit-license.php MIT License
  * @link https://github.com/sekidenkiku/syukujitsu
- * @version 1.0.1
+ * @version 1.0.2
  */
 
 namespace sekidenkiku\syukujitsu;
