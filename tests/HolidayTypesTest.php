@@ -6,20 +6,23 @@ use sekidenkiku\syukujitsu\HolidayTypes;
 
 class HolidayTypesTest extends TestCase
 {
+    const MAX_YEAR = 2100;
+
     /**
      * 元日    1月1日
      * @test
      */
     public function 元日()
     {
+        // 正しい名前が返される。
         $type = new HolidayTypes\Ganjitsu();
         $this->assertEquals('元日', $type->getName());
 
+        // 法律施行前はnullを返す。
         $year = 1948;
         $this->assertNull($type->findDate($year));
-        $year = 1949;
-        $this->assertEquals(new \DateTime("{$year}-1-1"), $type->findDate($year));
-        $year = 2001;
+        // 法律施行後はDateTimeオブジェクトを返す。
+        $year = rand(1949, self::MAX_YEAR);
         $this->assertEquals(new \DateTime("{$year}-1-1"), $type->findDate($year));
     }
 
@@ -40,10 +43,9 @@ class HolidayTypesTest extends TestCase
         $year = 1999;
         $this->assertEquals(new \DateTime("{$year}-1-15"), $type->findDate($year));
         // 2000年以降、1月の第2月曜日
-        $year = 2000;
-        $this->assertEquals(new \DateTime("{$year}-1-10"), $type->findDate($year));
-        $year = 2001;
-        $this->assertEquals(new \DateTime("{$year}-1-8"), $type->findDate($year));
+        $year = rand(2000, self::MAX_YEAR);
+        $expected = date('Y-m-d', strtotime("second mon of jan {$year}"));
+        $this->assertEquals(new \DateTime($expected), $type->findDate($year));
     }
 
     /**
@@ -59,9 +61,7 @@ class HolidayTypesTest extends TestCase
         $this->assertNull($type->findDate($year));
 
         // 1967年から2月11日
-        $year = 1967;
-        $this->assertEquals(new \DateTime("{$year}-2-11"), $type->findDate($year));
-        $year = 2000;
+        $year = rand(1967, self::MAX_YEAR);
         $this->assertEquals(new \DateTime("{$year}-2-11"), $type->findDate($year));
     }
 
@@ -94,10 +94,8 @@ class HolidayTypesTest extends TestCase
 
         $year = 2006;
         $this->assertNull($type->findDate($year));
-
-        $year = 2007;
-        $this->assertEquals(new \DateTime("{$year}-4-29"), $type->findDate($year));
-        $year = 2010;
+        // 2007年から4月29日
+        $year = rand(2007, self::MAX_YEAR);
         $this->assertEquals(new \DateTime("{$year}-4-29"), $type->findDate($year));
     }
 
@@ -112,11 +110,8 @@ class HolidayTypesTest extends TestCase
 
         $year = 1948;
         $this->assertNull($type->findDate($year));
-
-
-        $year = 1949;
-        $this->assertEquals(new \DateTime("{$year}-5-3"), $type->findDate($year));
-        $year = 2000;
+        // 1949年から5月3日
+        $year = rand(1949, self::MAX_YEAR);
         $this->assertEquals(new \DateTime("{$year}-5-3"), $type->findDate($year));
     }
 
@@ -131,14 +126,11 @@ class HolidayTypesTest extends TestCase
 
         $year = 1988;
         $this->assertNull($type->findDate($year));
-
-        $year = 1989;
+        // 1989年から2006年まで4月29日。
+        $year = rand(1989, 2006);
         $this->assertEquals(new \DateTime("{$year}-4-29"), $type->findDate($year));
-        $year = 2006;
-        $this->assertEquals(new \DateTime("{$year}-4-29"), $type->findDate($year));
-        $year = 2007;
-        $this->assertEquals(new \DateTime("{$year}-5-4"), $type->findDate($year));
-        $year = 2010;
+        // 2007年から5月4日。
+        $year = rand(2007, self::MAX_YEAR);
         $this->assertEquals(new \DateTime("{$year}-5-4"), $type->findDate($year));
     }
 
@@ -153,10 +145,8 @@ class HolidayTypesTest extends TestCase
 
         $year = 1948;
         $this->assertNull($type->findDate($year));
-
-        $year = 1949;
-        $this->assertEquals(new \DateTime("{$year}-5-5"), $type->findDate($year));
-        $year = 2000;
+        // 1949年から5月5日。
+        $year = rand(1949, self::MAX_YEAR);
         $this->assertEquals(new \DateTime("{$year}-5-5"), $type->findDate($year));
     }
 
@@ -171,16 +161,25 @@ class HolidayTypesTest extends TestCase
 
         $year = 1955;
         $this->assertNull($type->findDate($year));
-
-        $year = 1996;
-        $this->assertEquals(new \DateTime("{$year}-7-20"), $type->findDate($year));
-        $year = 2002;
+        // 1996年から2002年まで7月20日。
+        $year = rand(1996, 2002);
         $this->assertEquals(new \DateTime("{$year}-7-20"), $type->findDate($year));
         // 2003年から7月の第3月曜日。
-        $year = 2003;
-        $this->assertEquals(new \DateTime("{$year}-7-21"), $type->findDate($year));
+        $year = rand(2003, 2019);
+        $expected = date('Y-m-d', strtotime("third mon of jul {$year}"));
+        $this->assertEquals(new \DateTime($expected), $type->findDate($year));
         $year = 2010;
         $this->assertEquals(new \DateTime("{$year}-7-19"), $type->findDate($year));
+        // 2020年は7月23日。五輪・パラリンピック特別措置法
+        $year = 2020;
+        $this->assertEquals(new \DateTime("{$year}-7-23"), $type->findDate($year));
+        // 2021年は7月22日。五輪・パラリンピック特別措置法改正
+        $year = 2021;
+        $this->assertEquals(new \DateTime("{$year}-7-22"), $type->findDate($year));
+        // 2022年から元に戻る。7月の第3月曜日。
+        $year = rand(2022, self::MAX_YEAR);
+        $expected = date('Y-m-d', strtotime("third mon of jul {$year}"));
+        $this->assertEquals(new \DateTime($expected), $type->findDate($year));
     }
 
     /**
@@ -194,16 +193,17 @@ class HolidayTypesTest extends TestCase
 
         $year = 2015;
         $this->assertNull($type->findDate($year));
-
-        $year = 2016;
+        // 2016年から8月11日。
+        $year = rand(2016, 2019);
         $this->assertEquals(new \DateTime("{$year}-8-11"), $type->findDate($year));
-        $year = 2019;
-        $this->assertEquals(new \DateTime("{$year}-8-11"), $type->findDate($year));
+        // 2020年は8月10日。五輪・パラリンピック特別措置法
         $year = 2020;
         $this->assertEquals(new \DateTime("{$year}-8-10"), $type->findDate($year));
+        // 2021年は8月8日。五輪・パラリンピック特別措置法改正
         $year = 2021;
-        $this->assertEquals(new \DateTime("{$year}-8-11"), $type->findDate($year));
-        $year = 2030;
+        $this->assertEquals(new \DateTime("{$year}-8-8"), $type->findDate($year));
+        // 2022年から戻る。8月11日。
+        $year = rand(2022, self::MAX_YEAR);
         $this->assertEquals(new \DateTime("{$year}-8-11"), $type->findDate($year));
     }
 
@@ -218,16 +218,14 @@ class HolidayTypesTest extends TestCase
 
         $year = 1965;
         $this->assertNull($type->findDate($year));
-
-        $year = 1966;
-        $this->assertEquals(new \DateTime("{$year}-9-15"), $type->findDate($year));
-        $year = 2002;
+        // 1966年から9月15日。
+        $year = rand(1966, 2002);
         $this->assertEquals(new \DateTime("{$year}-9-15"), $type->findDate($year));
         // 2003年から9月の第3月曜日。
+        $year = rand(2003, self::MAX_YEAR);
         $year = 2003;
-        $this->assertEquals(new \DateTime("{$year}-9-15"), $type->findDate($year));
-        $year = 2010;
-        $this->assertEquals(new \DateTime("{$year}-9-20"), $type->findDate($year));
+        $expected = date('Y-m-d', strtotime("third mon of sep {$year}"));
+        $this->assertEquals(new \DateTime($expected), $type->findDate($year));
     }
 
     /**
@@ -260,19 +258,15 @@ class HolidayTypesTest extends TestCase
 
         $year = 1965;
         $this->assertNull($type->findDate($year));
-
-        $year = 1966;
-        $this->assertEquals(new \DateTime("{$year}-10-10"), $type->findDate($year));
-        $year = 1999;
+        // 1966年から10月10日。
+        $year = rand(1966, 1999);
         $this->assertEquals(new \DateTime("{$year}-10-10"), $type->findDate($year));
         // 2000年から10月の第2月曜日。
-        $year = 2000;
-        $this->assertEquals(new \DateTime("{$year}-10-9"), $type->findDate($year));
-        $year = 2019;
-        $this->assertEquals(new \DateTime("{$year}-10-14"), $type->findDate($year));
-
-        // 2020年からスポーツの日に改名。
-        $year = 2020;
+        $year = rand(2000, 2019);
+        $expected = date('Y-m-d', strtotime("second mon of oct {$year}"));
+        $this->assertEquals(new \DateTime($expected), $type->findDate($year));
+        // 2020年からスポーツの日に改名。2020年以降、体育の日はない。
+        $year = rand(2020, self::MAX_YEAR);
         $this->assertNull($type->findDate($year));
     }
 
@@ -287,13 +281,17 @@ class HolidayTypesTest extends TestCase
 
         $year = 2019;
         $this->assertNull($type->findDate($year));
-
+        // 2020年から10月の第2月曜日。
+        // 2020年は7月24日。五輪・パラリンピック特別措置法
         $year = 2020;
         $this->assertEquals(new \DateTime("{$year}-7-24"), $type->findDate($year));
+        // 2021年は7月23日。五輪・パラリンピック特別措置法改正
         $year = 2021;
-        $this->assertEquals(new \DateTime("{$year}-10-11"), $type->findDate($year));
-        $year = 2030;
-        $this->assertEquals(new \DateTime("{$year}-10-14"), $type->findDate($year));
+        $this->assertEquals(new \DateTime("{$year}-7-23"), $type->findDate($year));
+        // 2022年から戻る。10月の第2月曜日。
+        $year = rand(2022, self::MAX_YEAR);
+        $expected = date('Y-m-d', strtotime("second mon of oct {$year}"));
+        $this->assertEquals(new \DateTime($expected), $type->findDate($year));
     }
 
     /**
@@ -307,10 +305,8 @@ class HolidayTypesTest extends TestCase
 
         $year = 1947;
         $this->assertNull($type->findDate($year));
-
-        $year = 1948;
-        $this->assertEquals(new \DateTime("{$year}-11-3"), $type->findDate($year));
-        $year = 2001;
+        // 1948年から11月3日。
+        $year = rand(1948, self::MAX_YEAR);
         $this->assertEquals(new \DateTime("{$year}-11-3"), $type->findDate($year));
     }
 
@@ -325,10 +321,8 @@ class HolidayTypesTest extends TestCase
 
         $year = 1947;
         $this->assertNull($type->findDate($year));
-
-        $year = 1948;
-        $this->assertEquals(new \DateTime("{$year}-11-23"), $type->findDate($year));
-        $year = 2001;
+        // 1948年から11月23日。
+        $year = rand(1948, self::MAX_YEAR);
         $this->assertEquals(new \DateTime("{$year}-11-23"), $type->findDate($year));
     }
 
@@ -343,25 +337,17 @@ class HolidayTypesTest extends TestCase
 
         $year = 1948;
         $this->assertNull($type->findDate($year));
-
-        $year = 1949;
-        $this->assertEquals(new \DateTime("{$year}-4-29"), $type->findDate($year));
-        $year = 1988;
+        // 1949年から11月23日。
+        $year = rand(1949, 1988);
         $this->assertEquals(new \DateTime("{$year}-4-29"), $type->findDate($year));
         // 1989年から12月23日
-        $year = 1989;
-        $this->assertEquals(new \DateTime("{$year}-12-23"), $type->findDate($year));
-        $year = 2018;
+        $year = rand(1989, 2018);
         $this->assertEquals(new \DateTime("{$year}-12-23"), $type->findDate($year));
         // 2019年は祝日無し
         $year = 2019;
         $this->assertNull($type->findDate($year));
-
-
         // 2020年以降は2月23日
-        $year = 2020;
-        $this->assertEquals(new \DateTime("{$year}-2-23"), $type->findDate($year));
-        $year = 2030;
+        $year = rand(2020, self::MAX_YEAR);
         $this->assertEquals(new \DateTime("{$year}-2-23"), $type->findDate($year));
     }
 
