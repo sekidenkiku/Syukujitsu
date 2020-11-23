@@ -36,7 +36,9 @@ class Uminohi extends HolidayTypeAbstract
             $result = new \DateTime("third mon of July {$year}", $this->getTimezone());
         } elseif (2020 == $year) {
             $result = new \DateTime("{$year}-7-23", $this->getTimezone());
-        } elseif (2021 <= $year) {
+        } elseif (2021 == $year) {
+            $result = new \DateTime("{$year}-7-22", $this->getTimezone());
+        } elseif (2022 <= $year) {
             $result = new \DateTime("third mon of July {$year}", $this->getTimezone());
         } else {
             $result = null;

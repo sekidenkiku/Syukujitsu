@@ -32,7 +32,9 @@ class Supotunohi extends HolidayTypeAbstract
     {
         if (2020 == $year) {
             $result = new \DateTime("{$year}-7-24", $this->getTimezone());
-        } elseif (2021 <= $year) {
+        } elseif ($year === 2021) {
+            $result = new \DateTime("{$year}-7-23", $this->getTimezone());
+        } elseif (2022 <= $year) {
             $result = new \DateTime("second mon of October {$year}", $this->getTimezone());
         } else {
             $result = null;

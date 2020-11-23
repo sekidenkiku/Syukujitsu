@@ -34,7 +34,9 @@ class Yamanohi extends HolidayTypeAbstract
             $result = new \DateTime("{$year}-8-11", $this->getTimezone());
         } elseif (2020 == $year) {
             $result = new \DateTime("{$year}-8-10", $this->getTimezone());
-        } elseif (2021 <= $year) {
+        } elseif ($year === 2021) {
+            $result = new \DateTime("{$year}-8-8", $this->getTimezone());
+        } elseif (2022 <= $year) {
             $result = new \DateTime("{$year}-8-11", $this->getTimezone());
         } else {
             $result = null;
